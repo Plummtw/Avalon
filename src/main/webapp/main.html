@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <body class="lift:content_id=main">
+  <div id="main" class="lift:surround?with=avalon;at=content">    
+  <head>
+    <link rel="stylesheet" href="css/main.css"></link>
+    <script>
+      // <![CDATA[
+        //jQuery(document).ready(function(){
+        //  jQuery("form").submit(function(){ 
+        //    jQuery(":submit").attr("disabled", "disabled"); 
+        //  });
+        //});
+      // ]]>
+    </script>
+  </head>  
+  <div class="comment">人狼Avalon～鸚鵡實驗站</div>
+  <noscript>＜＜請安裝JavaScript＞＞</noscript>
+  <table class="main">
+    <tr>
+      <td valign="top">
+        <div class="menu">選單</div>
+        <ul>
+          <li><a href="script_info.html">伺服器資訊</a></li>
+          <li><a href="version.html">版本歷史</a></li>
+          <li><a href="rule.html">遊戲規則</a></li>
+          <li><a href="oldlog_list.html">遊戲紀錄</a>(<a href="oldlog_list.html?filter=noabandon">過濾廢棄</a>)</li>
+          <li><a href="icon_view.html">頭像一覽</a></li>
+          <li><a href="icon_upload.html">頭像上傳</a></li>
+          <li><a href="faq.html">Ｑ＆Ａ</a></li>
+          <li><a href="stat.html">統計資料</a>(<a href="stat.html?count=25">25</a>、<a href="stat.html?count=50">50</a>、<a href="stat.html?count=100">100</a>)</li>
+          <li><a href="bbs_list.html">討論區</a></li>
+        </ul>
+        <div class="menu">外部連線</div>
+      </td>
+      <td>
+        <fieldset>
+          <legend>伺服器公告</legend>
+          <div class="information"><h2>▉版本 0.0.1A Build 1011013</h2>
+          <h3>本伺服器M群：group576934@msnzone.cn(備用落葉M群：group434262@msnzone.cn)</h3>
+          <h1>▉公告</h1>
+          <font size="4">
+            目前遊戲於DEBUG MODE下執行，速度會比正式版慢，<br/>
+            登入遊戲後會自動更新，請不要按 F5。<br/>
+            但若發言或按鈕沒反應時，可能為登出狀態，可按 F5 重新登入。<br/>
+          </font>
+          <font size="2">
+            目前版本的內容：<br/>
+          </font>
+          <br/>
+          <h1>▉已知問題(研究中)</h1>
+          <font size="2">
+          1.自選陣營/職業有時會有無法開始遊戲的問題。
+          </font>
+          <br/>
+          <h1>▉預告</h1>
+          <font size="2">
+          </font>
+          <br/>
+          <font size="2">
+          <h4>▉製作＆管理 <span class="parrot">鸚鵡</span> <span class="neutral">柴郡貓</span> 小緯<br/>
+            ▉構想提供 <br/>
+          </h4></font></div>
+        </fieldset>
+        <fieldset>
+          <legend>村莊一覽</legend>
+          <div class="lift:RoomListSnippet">
+          </div>
+        </fieldset>
+        <div class="lift:Msgs?showAll=true"></div>
+        <fieldset>
+        <legend>村莊建立</legend>
+        <div id="form" class="lift:RoomCreateSnippet?form=post"> 
+        <table>
+        <tr>
+          <td><label>村莊名稱(20字)：</label></td>
+          <td><input name="room_name"    size="45"/> 村</td>
+        </tr>
+        <tr>
+          <td><label>村莊附註(20字)：</label></td>
+          <td><input name="room_comment" size="45"/></td>
+        </tr>
+        <tr>
+          <td><label>最大人數：</label></td>
+          <td><input name="max_user"/></td>
+        </tr>
+        <tr>
+          <td><label>測試模式：</label></td>
+          <td><input name="test_mode"/></td>
+        </tr>
+        <tr>
+          <td><label>希望陣營：</label></td>
+          <td>(可選擇希望的陣營，1/6失敗率)</td>
+        </tr>
+        <tr>
+          <td><label>希望職業：</label></td>
+          <td>(可選擇希望的職業，1/6失敗率，優先於希望陣營)</td>
+        </tr>
+        <tr>
+          <td><label>亂數位置：</label></td>
+          <td><input name="random_position"/>(初期位置不固定)</td>
+        </tr>
+        <tr>
+          <td><label>限制時間：</label></td>
+          <td>成員指派：<input name="team_assign_time"     value="90" size="3"/>秒
+              成員投票：<input name="team_vote_time"   value="120" size="3"/>秒<br/>
+              製作結界：<input name="mission_time" value="45" size="3"/>秒
+              狼咬：<input name="bite_time" value="120" size="3"/>秒 
+              道具：<input name="item_time" value="60" size="3"/>秒 
+          </td>
+        </tr>
+        <tr>
+          <td><label>無職模式：</label></td>
+          <td><input name="no_role"/>(無村民、人狼以外職業，且無狼咬階段)</td>
+        </tr>
+        <tr>
+          <td><label>加入獵人：</label></td>
+          <td><input name="role_guard"/>(人側，初期即知道誰是占卜師)</td>
+        </tr>
+        <tr>
+          <td><label>加入白狼：</label></td>
+          <td><input name="role_whitewolf"/>(狼側，占卜師無法察覺的人狼)</td>
+        </tr>
+        <tr>
+          <td><label>加入銀狼：</label></td>
+          <td><input name="role_silverwolf"/>(狼側，占卜師可以察覺，但其他人狼無法察覺的人狼)</td>
+        </tr>
+        <tr>
+          <td><label>加入幻狼：</label></td>
+          <td><input name="role_phantomwolf"/>(狼側，對獵人會顯示為占卜師的人狼)</td>
+        </tr>
+        <tr>
+          <td><label>加入忘卻者：</label></td>
+          <td>(此選項較複雜，將於推理穩定後再製作)</td>
+        </tr>
+        <tr>
+          <td><label>加入戀人：</label></td>
+          <td>(此選項較複雜，將於推理穩定後再製作)</td>
+        </tr>
+        <tr>
+          <td><label>道具(水晶球)：</label></td>
+          <td>(尚未製作)</td>
+        </tr>
+        <tr>
+          <td><label>道具(石中劍)：</label></td>
+          <td>(此選項較複雜，將於推理穩定後再製作)</td>
+        </tr>
+        <tr><td class="make" colspan="2"><input id="submit" type="submit" value=" 作成 "/></td></tr>
+        </table>
+        </div>
+        </fieldset>
+      </td>
+    </tr>
+  </table>
+  <div class="footer">Resistance and Resistance Avalon is designed by Don Eskridge<br/>Site Powered by <a href="http://liftweb.net/">Liftweb</a>.Copyright 2012, Plummtw</div>
+  </div>
+  </body>
+</html>

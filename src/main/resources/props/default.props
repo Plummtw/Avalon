@@ -1,0 +1,8 @@
+db.class=com.mysql.jdbc.Driver
+db.url=jdbc:mysql://localhost/avalon
+db.user=avalon
+db.pass=avalon0000
+
+mail.host=smtp.gmail.com
+mail.user=avalon
+mail.password=avalon0000

@@ -1,0 +1,70 @@
+﻿一、作業系統部分
+1. 確認作業系統 編碼 UTF-8 (Unix系列時)
+   確認作業系統 時區 GMT+8 (這個應該可以不用，但盡量 GMT+8)
+
+二、資料庫部分   
+1. 安裝 MySQL
+   建立 MySQL Database Schema avalon (編碼:UTF-8)
+     CREATE DATABASE avalon CHARACTER SET = utf8
+   建立 MySQL User avalon，密碼 avalon0000
+     CREATE USER avalon IDENTIFIED BY 'avalon0000'
+   並給予 Schema avalon 的所有權限
+     GRANT all ON avalon.* TO avalon;
+     
+2. 於 Database Schema 中建立初期資料表
+   建立初期資料表請參考 DB_CreateTable.txt
+   警告 : 裡面會把原本的 Table 先移掉(Drop)再重建，
+   如果之前已經建過了，就不要再執行整個執行。
+   若資料庫不支援 InnoDB 請移掉 ENGINE = InnoDB
+   
+   並新增初期UserIcon資料請參考 DB_InsertUserIcon.txt
+
+3. 程式中的資料庫連線設定位於
+   \src\avalon\models\db.clj
+   ( 如果資料庫 使用者 名稱 或 密碼 要改的話，這個也要改 )
+   :user        "avalon"
+   :password    "avalon0000" 
+ 
+三、Java程式部分
+1. 確認有安裝 Java SDK 1.6 以上
+
+
+四、SBT主控台部分
+
+1. 直接輸入 sbt 進入 sbt 主控台
+   clean 先清除所有建置的部份
+   compile 只編譯程式，而不啟動
+   container:start 啟動伺服器
+
+   另外，於 sbt 主控台離開，可按 exit
+
+2. \src\main\resources\logback.xml 為 程式 log 設定檔
+   可依需求修改
+   
+   一般不改的話，最上層會放最新的 Log，包含
+   avalon.log       一般 Log
+   avalon_Warn.log  警告 Log
+   avalon_Error.log 錯誤 Log
+   
+   而舊有的 Log 會被放置到 log 目錄下
+
+3. 管理資訊
+   請 INSERT 四筆到 AdminManage 下
+   INSERT INTO avalon.adminmanage('param_name','param_value') values('room_start','2')
+   INSERT INTO avalon.adminmanage('param_name','param_value') values('room_end','22')
+   INSERT INTO avalon.adminmanage('param_name','param_value') values('room_count','3')
+   INSERT INTO avalon.adminmanage('param_name','param_value') values('admin_ip','127.0.0.1')
+   
+   如本例是開放 02:00(凌晨)到 22:00(晚上十點) 允許開村，如要 24 小時開放請設 0 到 24
+   room_count 是設最大村數目前是寫 3
+
+   admin_ip 是管理者用的 ip 以 ; 分隔
+
+4. 檔案上傳的備份目錄
+   src\main\scala\code\snippet\UserIconSnippet.scala 中
+   第 115 行的 newname3 可設定檔案上傳的備份目錄
+   ( 另檔案上傳會同時傳至 newname1 newname2 newname3 位置 )
+   
+5. Port
+   \ 下的 bulid.sbt
+   port in container.Configuration := 80 這裡修改
