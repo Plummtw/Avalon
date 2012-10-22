@@ -45,14 +45,11 @@ object GameProcessor extends Logger{
     val werewolf_number = (userentrys.length + 2) / 3
     val villager_number = userentrys.length - werewolf_number
     
+    var java_werewolf_list: java.util.List[RoleEnum.Value] = new java.util.LinkedList()
+    var java_villager_list: java.util.List[RoleEnum.Value] = new java.util.LinkedList()
+    
     // 先產生職業清單
    
-    var java_werewolf_list: java.util.List[RoleEnum.Value] = new java.util.LinkedList()
-    val werewolf_filler_num = werewolf_number - java_werewolf_list.length
-    for (i <- 1 to werewolf_filler_num)
-      java_werewolf_list.add(RoleEnum.WEREWOLF)
-    
-    var java_villager_list: java.util.List[RoleEnum.Value] = new java.util.LinkedList()
     if (room.hasnt_flag(RoomFlagEnum.NO_ROLE)) {
       java_villager_list.add(RoleEnum.AUGURER)
       
@@ -69,15 +66,19 @@ object GameProcessor extends Logger{
         java_werewolf_list.add(RoleEnum.PHANTOMWOLF)
     }
     
+    val werewolf_filler_num = werewolf_number - java_werewolf_list.length
+    for (i <- 1 to werewolf_filler_num)
+      java_werewolf_list.add(RoleEnum.WEREWOLF)
+
     val villager_filler_num = villager_number - java_villager_list.length
     for (i <- 1 to villager_filler_num)
       java_villager_list.add(RoleEnum.VILLAGER)
-    
+      
     java.util.Collections.shuffle(java_werewolf_list)
     java.util.Collections.shuffle(java_villager_list)
     
-    java_werewolf_list = java_werewolf_list.take(werewolf_number)
-    java_villager_list = java_villager_list.take(villager_number)
+    java_werewolf_list = java_werewolf_list.subList(0, werewolf_number)
+    java_villager_list = java_villager_list.subList(0, villager_number)
     
     //println("shadow : " + java_shadow_list.size())
     //println("hunter : " + java_hunter_list.size())
@@ -110,14 +111,24 @@ object GameProcessor extends Logger{
         RoleEnum.get_role(role).role_side match {
           case RoleSideEnum.WEREWOLF => 
             if (java_werewolf_list.contains(role)) {
-              userentry.role(role.toString)
-              java_werewolf_list.remove(role)
+              try { 
+                java_werewolf_list.remove(role)
+                userentry.role(role.toString)
+              } catch { case _ => 
+                warn("Java Werewolf List : " + java_werewolf_list.toString)
+                warn("Role : " + role.toString)
+              }
             }
             
           case RoleSideEnum.VILLAGER => java_villager_list
             if (java_villager_list.contains(role)) {
-              userentry.role(role.toString)
-              java_villager_list.remove(role)
+              try { 
+                java_villager_list.remove(role)
+                userentry.role(role.toString)
+              } catch { case _ => 
+                warn("Java VILLAGER List : " + java_villager_list.toString)
+                warn("Role : " + role.toString)
+              }
             }
         }
         
@@ -160,6 +171,8 @@ object GameProcessor extends Logger{
     
     userentrys.foreach { userentry =>
       userentry.user_no(java_user_no_array.removeFirst()).room_flags("").role_flags("").damaged(0).subrole("")
+      if (room.has_flag(RoomFlagEnum.ITEM_CRYSTALBALL) && (userentry.user_no.is == 1))
+        userentry.add_item_flag(ItemFlagEnum.CRYSTAL_BALL)
       userentry.save
     }
   }
@@ -207,6 +220,11 @@ object GameProcessor extends Logger{
     val talk2 = Talk.create.roomround_id(new_round.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
                            .message(align_text.toString).cssclass("normal")
     talk2.save
+    
+    val talk3 = Talk.create.roomround_id(new_round.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
+                           .message("成員數：" + team_assign_number_hash(userentrys_rr.length)
+                           .map(_.toString).reduceLeft(_ + " , " + _)).cssclass("normal")
+    talk3.save
     //RoomActor ! NewMessageNoSend(talk)
     
     room.status(RoomStatusEnum.PLAYING.toString)
@@ -366,37 +384,59 @@ object GameProcessor extends Logger{
     } else if (room.werewolf_wins.is >= 3) {
       GameProcessor.process_victory(room, roomround, userentrys, RoomVictoryEnum.WEREWOLF_WIN)
     } else {
-      // 進入下一日
-      val new_round = RoomRound.create.room_id(room.id.is).round_no(roomround.round_no.is + 1)
-                               .last_round(roomround.id.is)
-      new_round.save
-    
-      var player_index = userentrys.map(_.id.is).indexOf(roomphase.leader.is) + 1
-      if (player_index >= userentrys.length)
-        player_index = 0
-    
-      val new_phase = RoomPhase.create.roomround_id(new_round.id.is)
-                      .phase_no(new_phase_no).phase_round(1)
-                      .phase_type(RoomPhaseEnum.TEAM_ASSIGN.toString)
-                      .leader(userentrys(player_index).id.is)
-                      .deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.team_assign_time.is))
-      new_phase.save
-      
-      val talk = Talk.create.roomround_id(new_round.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
-                            .message("第 " + (new_round.round_no.is.toString) + " 日 " + 
-                                     " 第 " + (new_phase.phase_round.is.toString) + " 回 " +
-                                     " (成員：" + team_assign_number(userentrys.length, new_round.round_no.is) +
-                                     " ,領隊：" + userentrys(player_index).handle_name.is + ") " +
-                                     (new java.util.Date).toString)
-      talk.save
-      talk.send(room.id.is)
-      
-      RoomActor.sendRoomMessage(room.id.is, SessionVarSet(room = room, roomround=new_round, roomphase = new_phase,
-        userentrys = userentrys))
-      RoomActor.sendRoomMessage(room.id.is, RoomForceUpdate(room.id.is,
-        List(ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.ACTION_BAR, ForceUpdateEnum.USER_TABLE)))
-          // ForceUpdateEnum.TALK_TABLE, 
+      // 檢查是否進入水晶球階段
+      if ((room.has_flag(RoomFlagEnum.ITEM_CRYSTALBALL)) &&
+          (roomround.round_no.is >= 2) && (roomround.round_no.is <= 4)) {
+        val new_phase = RoomPhase.create.roomround_id(roomphase.roomround_id.is)
+                                 .phase_no(new_phase_no).phase_round(roomphase.phase_round.is)
+                                 .phase_type(RoomPhaseEnum.CRYSTAL_BALL.toString)
+                                 .leader(roomphase.leader.is)
+                                 .assigned(roomphase.assigned.is)
+                                 .deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.item_time.is))
+        new_phase.save
+        RoomActor.sendRoomMessage(room.id.is, SessionVarSet(room = room, roomphase = new_phase,
+          userentrys = userentrys))
+        RoomActor.sendRoomMessage(room.id.is, RoomForceUpdate(room.id.is,
+          List(ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.ACTION_BAR)))
+      } else
+        // 進入下一日
+        next_day(room, roomround, roomphase, userentrys)
     }
+  }
+  
+  def next_day(room: Room, roomround: RoomRound, roomphase: RoomPhase, 
+                         userentrys: List[UserEntry]) : Unit = {
+    val new_phase_no = roomphase.phase_no.is + 1
+    
+    val new_round = RoomRound.create.room_id(room.id.is).round_no(roomround.round_no.is + 1)
+                             .last_round(roomround.id.is)
+    new_round.save
+    
+    var player_index = userentrys.map(_.id.is).indexOf(roomphase.leader.is) + 1
+    if (player_index >= userentrys.length)
+      player_index = 0
+    
+    val new_phase = RoomPhase.create.roomround_id(new_round.id.is)
+                    .phase_no(new_phase_no).phase_round(1)
+                    .phase_type(RoomPhaseEnum.TEAM_ASSIGN.toString)
+                    .leader(userentrys(player_index).id.is)
+                    .deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.team_assign_time.is))
+    new_phase.save
+      
+    val talk = Talk.create.roomround_id(new_round.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
+                          .message("第 " + (new_round.round_no.is.toString) + " 日 " + 
+                                   " 第 " + (new_phase.phase_round.is.toString) + " 回 " +
+                                   " (成員：" + team_assign_number(userentrys.length, new_round.round_no.is) +
+                                   " ,領隊：" + userentrys(player_index).handle_name.is + ") " +
+                                   (new java.util.Date).toString)
+    talk.save
+    talk.send(room.id.is)
+      
+    RoomActor.sendRoomMessage(room.id.is, SessionVarSet(room = room, roomround=new_round, roomphase = new_phase,
+      userentrys = userentrys))
+    RoomActor.sendRoomMessage(room.id.is, RoomForceUpdate(room.id.is,
+      List(ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.ACTION_BAR, ForceUpdateEnum.USER_TABLE)))
+        // ForceUpdateEnum.TALK_TABLE, 
   }
   
   def abandon(room : Room) = {

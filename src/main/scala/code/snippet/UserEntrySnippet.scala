@@ -288,7 +288,12 @@ class UserEntryLoginSnippet extends Logger {
         currentuserentry <- CurrentUserEntry.get if (currentroom == room);
         userentry_loaded <- UserEntry.find(By(UserEntry.id, currentuserentry.id.is), 
                                          By(UserEntry.room_id, currentroom.id.is))
-      } yield { warn("Login with session : " + userentry_loaded.id.is ); userentry_loaded }
+      } yield { 
+        warn("Login with session : " + userentry_loaded.id.is ); 
+        Room_R.set(currentroom)
+        CurrentUserEntry_R.set(userentry_loaded)
+        userentry_loaded 
+      }
     }
     
     var (redirect_page, message)  =

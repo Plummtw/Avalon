@@ -116,6 +116,9 @@ object MessageHelper {
       case MTypeEnum.ACTION_BITE         => 
         simple_message_tag(useractioner.handle_name.is + " 對 " + useractionee.handle_name.is + " 為鎖定目標", true, "bite")
         
+      case MTypeEnum.ITEM_CRYSTALBALL   => 
+        simple_message_tag(useractioner.handle_name.is + " 對 " + useractionee.handle_name.is + " 使用水晶球", true, "item")   
+        
       case MTypeEnum.RESULT_TEAM_VOTE      =>
         val roomphase_id = talk.message.is.toLong
         val votes = Vote.findAll(By(Vote.roomphase_id, roomphase_id))
@@ -130,6 +133,12 @@ object MessageHelper {
           val votes_no  = votes.filter(!_.vote_yes.is)
           simple_message_tag("建置結界：" + votes_yes.length + " 人，妨礙：" + votes_no.length + " 人", true, "bite")
         }
+        
+      case MTypeEnum.RESULT_CRYSTALBALL   => 
+        simple_message_tag(" 你發現 " + useractionee.handle_name.is + " 是 " + 
+          RoleSideEnum.get_roleside_cname(useractionee.get_role.role_side) + " 側" , 
+          (reveal_mode || (useractioner.id.is == currentuserentry_id)), "item")   
+        
         
       case xs => NodeSeq.Empty
     }

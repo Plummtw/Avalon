@@ -115,6 +115,35 @@ class ActionSnippet extends Logger {
     //     <button onclick={Unblock.toJsCmd}>取消</button></div></div>))
   }
   
+  def crystalball(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+
+    var target_str : String = ""
+    val targets = ActionCrystalBall.targetable_users(room, roomround, roomphase, currentuserentry, userentrys_rr)
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      val target_id : Long = try {
+        target_str.toLong 
+      } catch { case _ => 0}
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ITEM_CRYSTALBALL.toString)
+                         .actioner_id(currentuserentry.id.is).actionee_id(target_id)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         "user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
+         "use" -> ajaxSubmit("使用", () => { process; Unblock }),
+         "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
   def team_assign(in: NodeSeq) = {
     val room : Room = Room_R.get
     val roomround = RoomRound_R.get

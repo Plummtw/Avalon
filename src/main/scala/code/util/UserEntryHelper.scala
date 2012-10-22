@@ -53,6 +53,7 @@ object UserEntryHelper {
           { if (roomphase.phase_type.is == RoomPhaseEnum.GAMEHALL.toString) <strong>[？？]</strong>
             else if (reveal || (currentuserentry == userentry)) <strong>{userentry.get_role_field}</strong>
             else if ((currentuserentry.get_role.role_side == RoleSideEnum.WEREWOLF) &&
+                     (currentuserentry.get_role != RoleSilverwolf) &&
                      (userentry.get_role.role_side == RoleSideEnum.WEREWOLF) &&
                      (userentry.get_role != RoleSilverwolf)) <strong>{RoleWerewolf.cfield}</strong>
             else if ((currentuserentry.get_role == RoleAugurer) &&
@@ -64,7 +65,7 @@ object UserEntryHelper {
                       (userentry.get_role == RolePhantomwolf)))
               <strong>{RoleAugurer.cfield}</strong>
             else <strong>[？？]</strong>}
-          <br/>{id_icon}</td>
+          <br/>{id_icon}{if (userentry.has_item_flag(ItemFlagEnum.CRYSTAL_BALL)) "水晶球" else ""}</td>
     
     result ++ result2
   }

@@ -35,6 +35,12 @@ object ClockActor extends LiftActor with Logger {
   
   private val clock_message_map : HashMap[Long, ClockActorData] = new HashMap()
   
+  def refresh_roomphase(room_id : Long, roomphase : RoomPhase) = 
+    clock_message_map.get(room_id) match {
+      case Some(x) =>  x.roomphase = roomphase
+      case x       =>  ;
+    }
+  
   override def messageHandler = (in:Any) => in match {
     case SessionVarSet(new_room, new_roomround, new_roomphase, new_userentrys) =>
       //println("ClockActor SessionVarSetGot")

@@ -10,6 +10,7 @@ object RoomPhaseEnum extends Enumeration {
   val TEAM_VOTE       = Value("TV")
   val MISSION         = Value("MI")
   val BITE            = Value("BI")
+  val CRYSTAL_BALL    = Value("CB")
   val ENDED           = Value("EN")
   
   val CNAME_MAP     = scala.collection.immutable.TreeMap(
@@ -18,6 +19,7 @@ object RoomPhaseEnum extends Enumeration {
     TEAM_ASSIGN       -> "成員指派",
     TEAM_VOTE         -> "成員投票",
     MISSION           -> "建置結界",
+    CRYSTAL_BALL      -> "水晶球使用",
     BITE              -> "人狼行動",
     ENDED             -> "遊戲結束"
   )

@@ -147,7 +147,7 @@ object ActionMission extends ActionData(MTypeEnum.ACTION_MISSION, "建置結界"
   override def js_command : JsCmd = js_action
 }
 
-object ActionHinderMission extends ActionData(MTypeEnum.ACTION_HINDER_MISSION, "阻礙") {
+object ActionHinderMission extends ActionData(MTypeEnum.ACTION_HINDER_MISSION, "妨礙") {
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, 
                        currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     (currentuserentry.hasnt_room_flag(UserEntryRoomFlagEnum.VOTED))
@@ -165,5 +165,8 @@ object ActionBite extends ActionData(MTypeEnum.ACTION_BITE, "咬人") with UserE
   override def js_command : JsCmd = js_dialog("bite_dialog")
 }
 
+object ActionCrystalBall extends ActionData(MTypeEnum.ITEM_CRYSTALBALL, "使用水晶球") with UserEntryTargetable {
+  override def js_command : JsCmd = js_dialog("crystalball_dialog")
+}
 
 

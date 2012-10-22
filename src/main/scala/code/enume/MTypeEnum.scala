@@ -29,6 +29,7 @@ object MTypeEnum extends Enumeration {
   val RESULT_TEAM_VOTE     = Value("RTV")
   val RESULT_MISSION       = Value("RMI")
   val RESULT_BITE          = Value("RBI")
+  val RESULT_CRYSTALBALL   = Value("RCB")
 
   val OBJECTION_MALE       = Value("OM")
   val OBJECTION_FEMALE     = Value("OF")
@@ -43,6 +44,8 @@ object MTypeEnum extends Enumeration {
   val ACTION_TEST_ALERT    = Value("A0")
   val ACTION_KICK          = Value("AK")
   val ACTION_STARTGAME     = Value("AS")
+  
+  val ITEM_CRYSTALBALL     = Value("ICB")
   
   def get_action(string : String) : MTypeEnum.Value = {
     try {MTypeEnum.withName(string)}

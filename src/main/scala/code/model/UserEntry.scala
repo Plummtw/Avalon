@@ -189,7 +189,17 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
     user_flags(user_flags.is + flag.toString)
   def remove_user_flag(flag : UserEntryFlagEnum.Value) : UserEntry = 
     user_flags(user_flags.is.replace(flag.toString, ""))
-  
+
+  def has_item_flag(flag : ItemFlagEnum.Value) : Boolean = 
+    return (item_flags.is.indexOf(flag.toString) != -1)
+  def hasnt_item_flag(flag : ItemFlagEnum.Value) : Boolean = 
+    !has_item_flag(flag)
+  def add_item_flag(flag : ItemFlagEnum.Value) : UserEntry = 
+    item_flags(item_flags.is + flag.toString)
+  def remove_item_flag(flag : ItemFlagEnum.Value) : UserEntry = 
+    item_flags(item_flags.is.replace(flag.toString, ""))
+
+    
   //def items =
   //  item_flags.is.grouped(3).toList.map(x => CardEnum.get_card(x))
 

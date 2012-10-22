@@ -157,6 +157,7 @@ object RoomActor extends LiftActor with Logger {
             // 更新廢村時間
             val roomphase = RoomPhase.find(By(RoomPhase.roomround_id, roomround.id.is), OrderBy(RoomPhase.phase_no, Descending)).get
             roomphase.deadline(PlummUtil.dateAddMinute(new java.util.Date(), 10)).save
+            ClockActor.refresh_roomphase(room_id, roomphase)
           }
         case xs => ;
       }
@@ -233,8 +234,13 @@ object RoomActor extends LiftActor with Logger {
               talk.save
               talk.send(room.id.is)
             
-              val random_enum = if (Random.nextInt(2) == 0) MTypeEnum.ACTION_MISSION
-                                else MTypeEnum.ACTION_HINDER_MISSION
+              val random_enum = if (Random.nextInt(2) == 0) {
+                if (Random.nextInt(2) == 0) MTypeEnum.ACTION_MISSION
+                else MTypeEnum.ACTION_HINDER_MISSION 
+              } else {
+                if (userentry.get_role.role_side == RoleSideEnum.VILLAGER) MTypeEnum.ACTION_MISSION
+                else MTypeEnum.ACTION_HINDER_MISSION 
+              }
               val action = Action.create.roomround_id(roomround.id.is).actioner_id(userentry.id.is)
                                  .mtype(random_enum.toString)
               process_signal_action(action)
@@ -242,16 +248,30 @@ object RoomActor extends LiftActor with Logger {
           }
         
         case RoomPhaseEnum.BITE => 
-          val actioner = userentrys.filter(_.get_role.role_side == RoleSideEnum.WEREWOLF)(0)
+          val actioner = userentrys_rr.filter(_.get_role.role_side == RoleSideEnum.WEREWOLF)(0)
           val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.MESSAGE_TIMEOUT.toString)
                          .actioner_id(actioner.id.is)
           talk.save
           talk.send(room.id.is)
           
-          val targets = ActionBite.targetable_users(room, roomround, roomphase, actioner, userentrys)
+          val targets = ActionBite.targetable_users(room, roomround, roomphase, actioner, userentrys_rr)
           val action  = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_BITE.toString)
                               .actioner_id(actioner.id.is).actionee_id(targets(Random.nextInt(targets.length)).id.is)
           process_signal_action(action)
+          
+        case RoomPhaseEnum.CRYSTAL_BALL => 
+          val actioner = userentrys_rr.filter(_.has_item_flag(ItemFlagEnum.CRYSTAL_BALL))(0)
+          val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.MESSAGE_TIMEOUT.toString)
+                         .actioner_id(actioner.id.is)
+          talk.save
+          talk.send(room.id.is)
+          
+          val targets = ActionCrystalBall.targetable_users(room, roomround, roomphase, actioner, userentrys_rr)
+          val action  = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ITEM_CRYSTALBALL.toString)
+                              .actioner_id(actioner.id.is).actionee_id(targets(Random.nextInt(targets.length)).id.is)
+          process_signal_action(action)
+        
+        
         case _ => ;
       }
       

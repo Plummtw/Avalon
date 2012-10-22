@@ -45,6 +45,11 @@ object ActionHelper extends Logger {
         if (currentuserentry.get_role.role_side == RoleSideEnum.WEREWOLF)
           List(ActionBite)
         else List()
+      case RoomPhaseEnum.CRYSTAL_BALL => 
+        if (currentuserentry.has_item_flag(ItemFlagEnum.CRYSTAL_BALL))
+          List(ActionCrystalBall)
+        else List()  
+        
       case _ => List()
     }
   }
@@ -125,17 +130,32 @@ object ActionHelper extends Logger {
 
       case MTypeEnum.ACTION_TEAM_ASSIGN =>
         val new_phase_no = roomphase.phase_no.is + 1
-        val new_phase = RoomPhase.create.roomround_id(roomphase.roomround_id.is)
-                                 .phase_no(new_phase_no).phase_round(roomphase.phase_round.is)
-                                 .phase_type(RoomPhaseEnum.TEAM_VOTE.toString)
-                                 .leader(roomphase.leader.is)
-                                 .assigned(action.action_flags.is)
-                                 .deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.team_vote_time.is))
-        new_phase.save
-        RoomActor.sendRoomMessage(actioner.room_id.is, SessionVarSet(room = room, roomphase = new_phase,
-          userentrys = userentrys))
-        RoomActor.sendRoomMessage(actioner.room_id.is, RoomForceUpdate(actioner.room_id.is,
-          List(ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.ACTION_BAR)))
+        if (roomphase.phase_round.is >= 5) { 
+          // 進入 MISSION 階段
+          val new_phase = RoomPhase.create.roomround_id(roomphase.roomround_id.is)
+                                   .phase_no(new_phase_no).phase_round(roomphase.phase_round.is)
+                                   .phase_type(RoomPhaseEnum.MISSION.toString)
+                                   .leader(roomphase.leader.is)
+                                   .assigned(roomphase.assigned.is)
+                                   .deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.mission_time.is))
+          new_phase.save
+          RoomActor.sendRoomMessage(room.id.is, SessionVarSet(room = room, roomphase = new_phase,
+            userentrys = userentrys))
+          RoomActor.sendRoomMessage(room.id.is, RoomForceUpdate(room.id.is,
+            List(ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.ACTION_BAR, ForceUpdateEnum.USER_TABLE)))
+        } else {
+          val new_phase = RoomPhase.create.roomround_id(roomphase.roomround_id.is)
+                                   .phase_no(new_phase_no).phase_round(roomphase.phase_round.is)
+                                   .phase_type(RoomPhaseEnum.TEAM_VOTE.toString)
+                                   .leader(roomphase.leader.is)
+                                   .assigned(action.action_flags.is)
+                                   .deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.team_vote_time.is))
+          new_phase.save
+          RoomActor.sendRoomMessage(actioner.room_id.is, SessionVarSet(room = room, roomphase = new_phase,
+            userentrys = userentrys))
+          RoomActor.sendRoomMessage(actioner.room_id.is, RoomForceUpdate(actioner.room_id.is,
+            List(ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.ACTION_BAR)))
+        }
           
       case MTypeEnum.ACTION_TEAM_VOTE_YES =>
         actioner.add_room_flag(UserEntryRoomFlagEnum.VOTED).save
@@ -191,6 +211,19 @@ object ActionHelper extends Logger {
           GameProcessor.process_victory(room, roomround, userentrys_rr, RoomVictoryEnum.WEREWOLF_WIN2)
         else
           GameProcessor.process_victory(room, roomround, userentrys_rr, RoomVictoryEnum.VILLAGER_WIN)
+
+      case MTypeEnum.ITEM_CRYSTALBALL =>
+        val actionee : UserEntry = UserEntry.get(action.actionee_id.is, userentrys)
+        
+        val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_CRYSTALBALL.toString)
+                        .actioner_id(actioner.id.is).actionee_id(actionee.id.is)
+        talk1.save
+        talk1.send(room.id.is)
+        
+        actioner.remove_item_flag(ItemFlagEnum.CRYSTAL_BALL).save
+        actionee.add_item_flag(ItemFlagEnum.CRYSTAL_BALL).save
+        
+        GameProcessor.next_day(room, roomround, roomphase, userentrys_rr)
           
       case xs =>
         warn("Unprocessed Action : " + action.toString)
