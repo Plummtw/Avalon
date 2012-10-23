@@ -71,8 +71,15 @@ class GameComet extends CometActor with Logger {
   override def lowPriority = { 
     case NewMessage(room_id, talk) => { 
       if (room_id == saved_room_id) {
-        //println("NewTalk received")
-        partialUpdate(PrependHtml("talk-tbody", MessageHelper.talk_tag(talk, UserEntrys_R.get, reveal_mode))) 
+        if (talk.mtype.is == MTypeEnum.RESULT_TEAM_VOTE.toString) 
+          partialUpdate(PrependHtml("talk-tbody-right", MessageHelper.talk_tag(talk, UserEntrys_R.get, reveal_mode)))
+        else if (talk.mtype.is == MTypeEnum.RESULT_MISSION.toString) {
+          val talk_tag = MessageHelper.talk_tag(talk, UserEntrys_R.get, reveal_mode)
+          partialUpdate(PrependHtml("talk-tbody-left", talk_tag) & 
+                        PrependHtml("talk-tbody-right", talk_tag))
+        } else
+          partialUpdate(PrependHtml("talk-tbody-left", MessageHelper.talk_tag(talk, UserEntrys_R.get, reveal_mode))) 
+          
       }
       //if(!hasExpired_?) Schedule.schedule(this, CountdownTick, 5 seconds) 
     }
@@ -306,9 +313,9 @@ class GameComet extends CometActor with Logger {
     }
     
     val user_table = UserEntryHelper.user_table(room, roomphase, currentuserentry, userentrys_rr, reveal_mode)
-    //val location_table = LocationHelper.location_table(room, userentrys_rr)
-    val talk_table = MessageHelper.messages_normal(room, roomround, userentrys, reveal_mode)
-    //val card_table = CardHelper.card_table(room, card_list)
+    //val talk_table = MessageHelper.messages_normal(room, roomround, userentrys, reveal_mode)
+    val (talk_table_left, talk_table_right) = 
+      MessageHelper.messages_leftright(room, roomround, userentrys, reveal_mode)
     
     "#room_no"          #> room.id.is &
     "#room_name"        #> room.room_name.is &
@@ -325,7 +332,9 @@ class GameComet extends CometActor with Logger {
     "#action-bar *"     #> action_buttons &
     "#time-table *"     #> time_table &
     "#user-table *"     #> user_table &
-    "#talk-table *"     #> talk_table 
+    "#talk-table-left *"  #> talk_table_left &
+    "#talk-table-right *" #> talk_table_right
+    //"#talk-table *"     #> talk_table 
   }
   
   // val js: JsCmd = jsList.foldLeft[JsCmd](Noop)(_ & _)
@@ -359,13 +368,13 @@ class GameComet extends CometActor with Logger {
       //println("UserEntrys_RR : " + UserEntrys_RR.get.toString )
       result = result & SetHtml("user-table", UserEntryHelper.user_table(room, roomphase, currentuserentry, userentrys_rr, reveal_mode)) //UserEntryHelper.user_table(false)
     }  
-    //if (updates.contains(ForceUpdateEnum.LOCATION_TABLE)) 
-    //  result = result & SetHtml("location-table", LocationHelper.location_table(room, userentrys_rr))
-    if (updates.contains(ForceUpdateEnum.TALK_TABLE)) 
-      result = result & SetHtml("talk-table", MessageHelper.messages_normal(room, roomround, UserEntrys_R.get, reveal_mode))
-    //if (updates.contains(ForceUpdateEnum.CARD_TABLE)) 
-    //  result = result & SetHtml("card-table", CardHelper.card_table(room, card_list))
-    //println(result)
+    if (updates.contains(ForceUpdateEnum.TALK_TABLE)) {
+      //result = result & SetHtml("talk-table", MessageHelper.messages_normal(room, roomround, UserEntrys_R.get, reveal_mode))
+      val (talk_table_left, talk_table_right) = 
+        MessageHelper.messages_leftright(room, roomround, UserEntrys_R.get, reveal_mode)
+      result = result & SetHtml("talk-table-left", talk_table_left) &
+                        SetHtml("talk-table-right", talk_table_right)
+    }
     result
   }
   

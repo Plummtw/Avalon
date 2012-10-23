@@ -51,11 +51,11 @@ object MessageHelper {
   }
   
   def simple_message_tag(message: String) : NodeSeq= {
-    Seq(<tr><td class="system-user" colspan="2">　　　　　{message}</td></tr>)
+    Seq(<tr><td class="system-user" colspan="2">　　{message}</td></tr>)
   }
   
   def simple_message_tag(node: scala.xml.Node) : NodeSeq= {
-    Seq(<tr><td class="system-user" colspan="2">　　　　　{node}</td></tr>)
+    Seq(<tr><td class="system-user" colspan="2">　　{node}</td></tr>)
   }
   
   def simple_message_tag(message: String, reveal_mode: Boolean, cssclass : String) : NodeSeq= {
@@ -63,7 +63,7 @@ object MessageHelper {
   
     if (reveal_mode)
       //Seq(<tr><td width="1000" colspan="3" align="left" style={style_str}>　　　　　　　　　　　　{message} </td></tr>)
-      Seq(<tr><td class={css_str} colspan="2">　　　　　{message}</td></tr>)
+      Seq(<tr><td class={css_str} colspan="2">　　{message}</td></tr>)
     else
       NodeSeq.Empty  
   }
@@ -177,6 +177,52 @@ object MessageHelper {
     Seq(<table class="talk"> <tbody id="talk-tbody">{
         for (talk <- talks) yield talk_tag(talk, userentrys, reveal)
       } </tbody></table>)
+  }
+  
+  // Message Table
+  def messages_leftright(room: Room, roomround : RoomRound, userentrys: List[UserEntry], reveal:Boolean) 
+    : (NodeSeq, NodeSeq) = {
+    //val roomround = RoomRound_R.get
+    var talks =  Talk.findAll(By(Talk.roomround_id, roomround.id.is), OrderBy(Talk.id, Descending))
+    
+    var lastround_id = roomround.last_round.is
+    while(lastround_id != 0) {
+      talks = talks ++ Talk.findAll(By(Talk.roomround_id, lastround_id), OrderBy(Talk.id, Descending))
+      val lastround = RoomRound.find(By(RoomRound.id, lastround_id)).get
+      lastround_id = lastround.last_round.is
+    }
+    
+    if (roomround.round_no.is == 0) {
+      val revotes = talks.filter(_.mtype.is == MTypeEnum.MESSAGE_REVOTE0.toString)
+
+      // 新增 投票重新開始 50 次時廢村
+      if ((revotes.length >= 50) || (talks.length >= 1000)) {
+        //val room = Room_R.get
+        /*
+        room.status(RoomStatusEnum.ENDED.toString).victory(RoomVictoryEnum.ABANDONED.toString)
+        room.save
+            
+        RoomActor ! SessionVarSet(room = room)
+        RoomActor.sendRoomMessage(room.id.is, RoomForceUpdate(room.id.is ,List(ForceUpdateEnum.USER_TABLE, ForceUpdateEnum.TALK_TABLE, ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.ACTION_BAR)))
+        */
+       GameProcessor.abandon(room)
+      }
+    }
+    
+    val talks_left  = talks.filter(_.mtype.is != MTypeEnum.RESULT_TEAM_VOTE.toString)
+    val talks_right = talks.filter(t => (t.mtype.is == MTypeEnum.RESULT_TEAM_VOTE.toString) ||
+                                        (t.mtype.is == MTypeEnum.RESULT_MISSION.toString))
+    
+    val result_left = 
+      Seq(<table class="talk"> <tbody id="talk-tbody-left">{
+          for (talk <- talks_left) yield talk_tag(talk, userentrys, reveal)
+        } </tbody></table>)
+    val result_right = 
+      Seq(<table class="talk"> <tbody id="talk-tbody-right">{
+          for (talk <- talks_right) yield talk_tag(talk, userentrys, reveal)
+        } </tbody></table>)
+        
+    (result_left, result_right)
   }
   
   //val amountRange = Expense.findAll(   BySql("amount between ? and ?", lowVal, highVal))

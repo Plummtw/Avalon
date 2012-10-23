@@ -131,6 +131,11 @@ object ActionHelper extends Logger {
       case MTypeEnum.ACTION_TEAM_ASSIGN =>
         val new_phase_no = roomphase.phase_no.is + 1
         if (roomphase.phase_round.is >= 5) { 
+          val vote_result = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_TEAM_VOTE.toString)
+                                .message(roomphase.id.is.toString)
+          vote_result.save
+          vote_result.send(room.id.is)
+        
           // 進入 MISSION 階段
           val new_phase = RoomPhase.create.roomround_id(roomphase.roomround_id.is)
                                    .phase_no(new_phase_no).phase_round(roomphase.phase_round.is)

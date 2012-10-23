@@ -150,6 +150,7 @@ a:hover{  color: #FF0000;}
   font-weight: lighter;
 }
 
+.talk-tbody { vertical-align:text-top; }
 .add-role{font-size: 8pt;} /* 角色表示選項用 */
 
 .user-talk{ /* 玩家發言 */
@@ -172,7 +173,7 @@ a:hover{  color: #FF0000;}
 .system-message td{
   border-top: 1px dashed #C0C0C0;
   width: 1000px;
-  padding-left: 6em;
+  padding-left: 1em;
   color: #FFFAFA;
   font-weight: bold;
 }
@@ -210,7 +211,7 @@ a:hover{  color: #FF0000;}
 .mania-do{        background-color: #C0A060;} /* 神話マニア */
 .system-user{ /* 系統玩家 */
   width: 1000px;
-  padding-left: 6em;
+  padding-left: 1em;
   background-color: #EFEFEF;
   color: #000000;
   font-weight: bold;

@@ -44,7 +44,7 @@ class TestSnippet {
     val room = Room.create.room_name("測試用").room_comment("8人測試用村")
                    .max_user(8)
                    .team_assign_time(999).team_vote_time(999)
-                   .mission_time(999).bite_time(999)
+                   .mission_time(999).bite_time(999).item_time(999)
                    .room_flags("WA_,WR_")
                    //.room_flags(all_enum.map(_.toString).mkString("",",",""))
                    .status(RoomStatusEnum.WAITING.toString).victory("")
