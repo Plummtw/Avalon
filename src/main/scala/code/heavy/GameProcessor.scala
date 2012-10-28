@@ -343,7 +343,7 @@ object GameProcessor extends Logger{
     val votes_no  = votes.filter(!_.vote_yes.is)
     
     val mission_fail = (votes_no.length >= 2) ||
-                       ((votes_no.length == 1) && ((roomphase.phase_round.is != 4) || 
+                       ((votes_no.length == 1) && ((roomround.round_no.is != 4) || 
                                                    (userentrys.length < 7)))
     
     userentrys.foreach { userentry =>
@@ -431,6 +431,13 @@ object GameProcessor extends Logger{
                                    (new java.util.Date).toString)
     talk.save
     talk.send(room.id.is)
+    
+    if ((new_round.round_no.is == 4) && (userentrys.length >= 7)) {
+      val talk1 = Talk.create.roomround_id(new_round.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
+                            .message("提醒：本日須 2 個妨礙才會失敗")
+      talk1.save
+      talk1.send(room.id.is)
+    }
       
     RoomActor.sendRoomMessage(room.id.is, SessionVarSet(room = room, roomround=new_round, roomphase = new_phase,
       userentrys = userentrys))

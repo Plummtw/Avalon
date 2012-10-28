@@ -219,7 +219,14 @@ object MessageHelper {
         } </tbody></table>)
     val result_right = 
       Seq(<table class="talk"> <tbody id="talk-tbody-right">{
-          for (talk <- talks_right) yield talk_tag(talk, userentrys, reveal)
+          for (talk <- talks_right) yield {
+            if (talk.mtype.is == MTypeEnum.RESULT_MISSION.toString) {
+              val roomphase_id = talk.message.is.toLong
+              val votes = Vote.findAll(By(Vote.roomphase_id, roomphase_id))
+              VoteHelper.mission_vote_table_right(userentrys, votes)
+            } else
+              talk_tag(talk, userentrys, reveal)
+          }
         } </tbody></table>)
         
     (result_left, result_right)

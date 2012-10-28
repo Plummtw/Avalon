@@ -75,8 +75,11 @@ class GameComet extends CometActor with Logger {
           partialUpdate(PrependHtml("talk-tbody-right", MessageHelper.talk_tag(talk, UserEntrys_R.get, reveal_mode)))
         else if (talk.mtype.is == MTypeEnum.RESULT_MISSION.toString) {
           val talk_tag = MessageHelper.talk_tag(talk, UserEntrys_R.get, reveal_mode)
+          val roomphase_id = talk.message.is.toLong
+          val votes = Vote.findAll(By(Vote.roomphase_id, roomphase_id))
+          val vote_tag = VoteHelper.mission_vote_table_right(UserEntrys_R.get, votes)
           partialUpdate(PrependHtml("talk-tbody-left", talk_tag) & 
-                        PrependHtml("talk-tbody-right", talk_tag))
+                        PrependHtml("talk-tbody-right", vote_tag))
         } else
           partialUpdate(PrependHtml("talk-tbody-left", MessageHelper.talk_tag(talk, UserEntrys_R.get, reveal_mode))) 
           

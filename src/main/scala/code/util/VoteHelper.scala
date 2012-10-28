@@ -35,11 +35,19 @@ object VoteHelper {
   }
   
   def mission_vote_table(userentrys : List[UserEntry], votes : List[Vote]) = {
-    val votes_rr = votes.sortWith((x,y) => UserEntry.get(x.actioner_id.is, userentrys).user_no.is < 
-                                           UserEntry.get(y.actioner_id.is, userentrys).user_no.is)
+    val votes_rr = votes.sortBy(x => UserEntry.get(x.actioner_id.is, userentrys).user_no.is)
     <table class="mission-table">{votes_rr.map { vote =>
       val actioner = UserEntry.get(vote.actioner_id.is, userentrys)
       <tr><td>{actioner.handle_name.is}</td><td>{if (vote.vote_yes.is) "建置結界" else "妨礙建置結界" }</td></tr>
     }}</table>
+  }
+  
+  def mission_vote_table_right(userentrys : List[UserEntry], votes : List[Vote]) = {
+    //val votes_rr = votes.sortBy(x => UserEntry.get(x.actioner_id.is, userentrys).user_no.is)
+    val votes_yes = votes.filter(_.vote_yes.is)
+    val votes_no  = votes.filter(!_.vote_yes.is)
+    <table class="mission-table">
+      <tr><td>{"建置結界：" + votes_yes.length + " 人，妨礙：" + votes_no.length + " 人"}</td></tr>
+    </table>
   }
 }

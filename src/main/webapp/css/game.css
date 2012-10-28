@@ -150,7 +150,7 @@ a:hover{  color: #FF0000;}
   font-weight: lighter;
 }
 
-.talk-tbody { vertical-align:text-top; }
+.talk-tbody { vertical-align:top; }
 .add-role{font-size: 8pt;} /* 角色表示選項用 */
 
 .user-talk{ /* 玩家發言 */

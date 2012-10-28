@@ -129,7 +129,9 @@ class UserEntryRegisterSnippet extends StatefulSnippet with Logger {
               userentry.password(PlummUtil.generateSHA1(password.trim()).substring(0,20))
               userentry.save
               CurrentRoom.set(Box !! room)
+              Room_R.set(room)
               CurrentUserEntry.set(Box !! userentry)
+              CurrentUserEntry_R.set(userentry)
         
               val talk = Talk.create.roomround_id(roomround.id.is).actioner_id(userentry.id.is)
                          .mtype(MTypeEnum.MESSAGE_COME.toString).message(userentry.handle_name.is)

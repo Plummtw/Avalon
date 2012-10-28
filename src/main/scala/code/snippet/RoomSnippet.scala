@@ -31,7 +31,7 @@ class RoomListSnippet extends Logger {
           <img class="option" src="images/playing.gif" alt="進行中" title="進行中"/>
       }
       <span> [{room.id}號村] </span>{room.room_name}村<br/><div class="room_comment">～ {room.room_comment} ～
-      [指派:{room.team_assign_time}][投票:{room.team_vote_time}][建置:{room.mission_time}][狼咬:{room.bite_time}]
+      [指派:{room.team_assign_time}][投票:{room.team_vote_time}][建置:{room.mission_time}][狼咬:{room.bite_time}][道具:{room.item_time}]
       [ {room.max_user}人用 ] </div></a>, 
       <div class="room_option">村莊選項：{room.option_text}</div>, <br/>) }
   }
