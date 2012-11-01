@@ -213,7 +213,7 @@ object GameProcessor extends Logger{
                           .message("第 " + (new_round.round_no.is.toString) + " 日 " + 
                                    " 第 " + (new_phase.phase_round.is.toString) + " 回 " +
                                    " (成員：" + team_assign_number(userentrys_rr.length, new_round.round_no.is) +
-                                   " ,領隊：" + userentrys_rr(0).handle_name.is + ") " +
+                                   " ，領隊：" + userentrys_rr(0).handle_name.is + ") " +
                                    (new java.util.Date).toString)
     talk.save
     
@@ -317,7 +317,7 @@ object GameProcessor extends Logger{
                             .message("第 " + (roomround.round_no.is.toString) + " 日 " + 
                                      " 第 " + (new_phase.phase_round.is.toString) + " 回 " +
                                      " (成員：" + team_assign_number(userentrys.length, roomround.round_no.is) +
-                                     " ,領隊：" + userentrys(player_index).handle_name.is + ") " +
+                                     " ，領隊：" + userentrys(player_index).handle_name.is + ") " +
                                      (new java.util.Date).toString)
       talk.save
       talk.send(room.id.is)
@@ -427,7 +427,7 @@ object GameProcessor extends Logger{
                           .message("第 " + (new_round.round_no.is.toString) + " 日 " + 
                                    " 第 " + (new_phase.phase_round.is.toString) + " 回 " +
                                    " (成員：" + team_assign_number(userentrys.length, new_round.round_no.is) +
-                                   " ,領隊：" + userentrys(player_index).handle_name.is + ") " +
+                                   " ，領隊：" + userentrys(player_index).handle_name.is + ") " +
                                    (new java.util.Date).toString)
     talk.save
     talk.send(room.id.is)
