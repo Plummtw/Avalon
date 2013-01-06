@@ -141,7 +141,8 @@ object ActionHelper extends Logger {
                                    .phase_no(new_phase_no).phase_round(roomphase.phase_round.is)
                                    .phase_type(RoomPhaseEnum.MISSION.toString)
                                    .leader(roomphase.leader.is)
-                                   .assigned(roomphase.assigned.is)
+                                   //.assigned(roomphase.assigned.is)
+                                   .assigned(action.action_flags.is)
                                    .deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.mission_time.is))
           new_phase.save
           RoomActor.sendRoomMessage(room.id.is, SessionVarSet(room = room, roomphase = new_phase,
